@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
+from .config import AgentSettings
 
 
 class CodexError(RuntimeError):
