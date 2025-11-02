@@ -12,7 +12,10 @@ class AgentDirectories(BaseModel):
 
     root: Path
     state_dir: Path
+    logs_dir: Path
     active_state_file: Path
+    tests_file: Path
+    runner_file: Path
 
 
 class AgentSettings(BaseSettings):
@@ -21,16 +24,23 @@ class AgentSettings(BaseSettings):
     workspace_root: Path = Field(default_factory=lambda: Path.cwd() / "agents")
     active_state_filename: str = "active.state.json"
     state_dirname: str = "state"
+    logs_dirname: str = "logs"
     codex_command: str = "codex"
+    tests_filename: str = "tests.py"
+    runner_filename: str = "runner.py"
 
     model_config = SettingsConfigDict(env_prefix="STG_", env_file=".env", extra="allow")
 
     def paths_for(self, root: Path) -> AgentDirectories:
         state_dir = root / self.state_dirname
+        logs_dir = root / self.logs_dirname
         return AgentDirectories(
             root=root,
             state_dir=state_dir,
+            logs_dir=logs_dir,
             active_state_file=state_dir / self.active_state_filename,
+            tests_file=root / self.tests_filename,
+            runner_file=root / self.runner_filename,
         )
 
 
