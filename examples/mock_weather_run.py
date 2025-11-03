@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from textwrap import dedent
 
+from scalable_textgrad.ci import run_ci
 from scalable_textgrad.codex_client import CodexResult
 from scalable_textgrad.config import AgentSettings, resolve_workspace
 from scalable_textgrad.state_manager import StateManager
@@ -58,7 +59,6 @@ def bootstrap_workspace(workspace_root: Path) -> Path:
 
     manager = StateManager(dirs)
     manager.ensure_layout()
-    manager.write_state({"workspace": dirs.root.name})
 
     DummyCodexRunner().run("seed weather agent", dirs.root)
     return dirs.root
@@ -70,11 +70,13 @@ def main() -> None:
     workspace_root.mkdir(parents=True, exist_ok=True)
 
     workspace = bootstrap_workspace(workspace_root)
+    pipeline = run_ci(workspace)
 
     print("Workspace:", workspace)
-    state_path = workspace / "state" / "active.state.json"
-    print("State file:", state_path.read_text().strip())
-    print("Files:", sorted(p.name for p in workspace.iterdir()))
+    print("CI success:", pipeline.success)
+    for step in pipeline.steps:
+        status = "PASS" if step.success else "FAIL"
+        print(f"[{status}] {step.name}")
 
 
 if __name__ == "__main__":
