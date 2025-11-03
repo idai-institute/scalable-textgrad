@@ -14,6 +14,7 @@ class AgentDirectories(BaseModel):
     state_dir: Path
     logs_dir: Path
     active_state_file: Path
+    state_lock_file: Path
     tests_file: Path
     runner_file: Path
 
@@ -39,6 +40,7 @@ class AgentSettings(BaseSettings):
             state_dir=state_dir,
             logs_dir=logs_dir,
             active_state_file=state_dir / self.active_state_filename,
+            state_lock_file=state_dir / ".lock",
             tests_file=root / self.tests_filename,
             runner_file=root / self.runner_filename,
         )

@@ -22,11 +22,3 @@ def test_write_and_read(tmp_path: Path) -> None:
     manager.write_state({"value": 42})
     active = manager.read_state()
     assert active.payload["value"] == 42
-
-
-def test_layout_only_includes_state_file(tmp_path: Path) -> None:
-    manager = make_manager(tmp_path)
-
-    assert manager.dirs.state_dir.exists()
-    assert manager.dirs.active_state_file.exists()
-    assert not (manager.dirs.state_dir / ".lock").exists()
