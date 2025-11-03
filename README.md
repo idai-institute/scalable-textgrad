@@ -1,6 +1,6 @@
 # Scalable TextGrad Platform
 
-Workspace utilities for Codex-driven agents: directory layout helpers and state tracking you can call from your own orchestration layer.
+Workspace utilities for Codex-driven agents: directory layout helpers, state tracking, and CI runners you can call from your own orchestration layer.
 
 ## Quickstart
 
