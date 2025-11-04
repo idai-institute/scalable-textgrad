@@ -22,3 +22,4 @@ def test_run_ci_succeeds_when_tests_missing(tmp_path: Path) -> None:
 
     assert result.success
     assert result.steps == []
+    assert result.summary == ""

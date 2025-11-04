@@ -23,6 +23,16 @@ class PipelineResult:
     success: bool
     steps: List[StepResult]
 
+    @property
+    def summary(self) -> str:
+        lines = []
+        for step in self.steps:
+            status = "PASS" if step.success else "FAIL"
+            lines.append(f"[{status}] {step.name}")
+            if step.stderr:
+                lines.append(step.stderr.strip())
+        return "\n".join(lines)
+
 
 def run_ci(workdir: Path) -> PipelineResult:
     steps: List[StepResult] = []
