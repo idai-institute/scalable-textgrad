@@ -17,9 +17,9 @@ def test_codex_runner_requires_executable(tmp_path: Path) -> None:
         runner.run("echo hello", tmp_path)
 
 
-def test_run_ci_succeeds_when_tests_missing(tmp_path: Path) -> None:
+def test_run_ci_reports_missing_tests(tmp_path: Path) -> None:
     result = run_ci(tmp_path)
 
-    assert result.success
-    assert result.steps == []
-    assert result.summary == ""
+    assert not result.success
+    assert result.steps[0].name == "pytest"
+    assert "tests.py missing" in result.steps[0].stderr

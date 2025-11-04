@@ -45,5 +45,8 @@ def run_ci(workdir: Path) -> PipelineResult:
         steps.append(StepResult("pytest", result.exit_code == 0, result.stdout, result.stderr))
     elif tests_path.exists():
         steps.append(StepResult("pytest", False, "", "pytest not available"))
-    success = all(step.success for step in steps) if steps else True
+    else:
+        steps.append(StepResult("pytest", False, "", "tests.py missing"))
+
+    success = all(step.success for step in steps)
     return PipelineResult(success=success, steps=steps)
