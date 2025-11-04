@@ -73,10 +73,7 @@ def main() -> None:
     pipeline = run_ci(workspace)
 
     print("Workspace:", workspace)
-    print("CI success:", pipeline.success)
-    for step in pipeline.steps:
-        status = "PASS" if step.success else "FAIL"
-        print(f"[{status}] {step.name}")
+    print(pipeline.summary)
 
 
 if __name__ == "__main__":
