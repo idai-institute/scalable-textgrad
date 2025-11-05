@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import os
 import shutil
 from pathlib import Path
 from textwrap import dedent
 
-from scalable_textgrad.ci import run_ci
+from scalable_textgrad.architect.service import (
+    ArchitectService,
+    StartAgentRequest,
+)
 from scalable_textgrad.codex_client import CodexResult
-from scalable_textgrad.config import AgentSettings, resolve_workspace
-from scalable_textgrad.state_manager import StateManager
 
 
 class DummyCodexRunner:
@@ -52,28 +54,22 @@ class DummyCodexRunner:
         (path / "tests.py").write_text(tests)
 
 
-def bootstrap_workspace(workspace_root: Path) -> Path:
-    settings = AgentSettings(workspace_root=workspace_root)
-    dirs = resolve_workspace(settings, "ROOT")
-    dirs.root.mkdir(parents=True, exist_ok=True)
-
-    manager = StateManager(dirs)
-    manager.ensure_layout()
-
-    DummyCodexRunner().run("seed weather agent", dirs.root)
-    return dirs.root
-
-
 def main() -> None:
     workspace_root = Path("examples/mock_weather_workspaces").resolve()
     shutil.rmtree(workspace_root, ignore_errors=True)
     workspace_root.mkdir(parents=True, exist_ok=True)
+    os.environ["STG_WORKSPACE_ROOT"] = str(workspace_root)
 
-    workspace = bootstrap_workspace(workspace_root)
-    pipeline = run_ci(workspace)
+    architect = ArchitectService()
+    architect.codex = DummyCodexRunner()
 
-    print("Workspace:", workspace)
-    print(pipeline.summary)
+    start_response = architect.start_agent(
+        StartAgentRequest(
+            agent_name="ROOT",
+            description="A mock weather system that exposes runner skeletons.",
+        )
+    )
+    print("Bootstrap:", start_response)
 
 
 if __name__ == "__main__":
