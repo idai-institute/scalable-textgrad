@@ -1,4 +1,4 @@
-"""Scalable TextGrad workspace utilities."""
+"""Scalable TextGrad: Architect platform."""
 
 from __future__ import annotations
 

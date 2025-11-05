@@ -1,4 +1,4 @@
-"""State manager for agent workspaces."""
+"""State manager shared between the Runner and Architect services."""
 
 from __future__ import annotations
 

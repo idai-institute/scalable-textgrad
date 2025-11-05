@@ -1,4 +1,4 @@
-"""Simple CI helpers for agent workspaces."""
+"""Simple CI helpers for the Architect."""
 
 from __future__ import annotations
 
