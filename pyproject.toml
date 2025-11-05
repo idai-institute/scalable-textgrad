@@ -1,14 +1,19 @@
 [project]
 name = "scalable-textgrad"
 version = "0.1.0"
-description = "Workspace utilities for Codex-driven agents"
+description = "Evolvable agent platform with an Architect service"
 authors = [{name = "Codex"}]
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.109",
+    "uvicorn>=0.24",
     "pydantic>=2.5",
     "pydantic-settings>=2.1",
     "filelock>=3.13",
-    "python-json-logger>=2.0",
+    "pyyaml>=6.0",
+    "opentelemetry-api>=1.22",
+    "opentelemetry-sdk>=1.22",
+    "python-json-logger>=2.0"
 ]
 
 [project.optional-dependencies]
