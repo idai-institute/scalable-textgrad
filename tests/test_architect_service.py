@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scalable_textgrad.architect.service import (
+    ArchitectChatRequest,
     ArchitectService,
     StartAgentRequest,
 )
@@ -49,3 +50,24 @@ def test_start_agent_creates_workspace() -> None:
     assert (workspace / "state" / "active.state.json").exists()
     assert not (workspace / ".gitignore").exists()
     assert stub.calls == [workspace]
+
+
+@pytest.mark.asyncio
+async def test_chat_runs_in_place() -> None:
+    service = ArchitectService()
+    start_stub = StubCodexRunner()
+    service.codex = start_stub
+
+    start_response = service.start_agent(
+        StartAgentRequest(agent_name="demo", description="Sample agent"),
+    )
+    workspace = Path(start_response.workspace)
+
+    chat_stub = StubCodexRunner()
+    service.codex = chat_stub
+    response = await service.handle_chat(
+        "demo", ArchitectChatRequest(message="Please refine the agent"),
+    )
+
+    assert response.result == "applied"
+    assert chat_stub.calls == [workspace]
