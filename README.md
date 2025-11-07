@@ -21,4 +21,4 @@ Useful environment variables (prefixed with `STG_`):
 | `STG_WORKSPACE_ROOT` | Root directory that stores agent workspaces | `./agents` |
 | `STG_CODEX_COMMAND` | Path to the Codex CLI executable | `codex` |
 
-The Architect exposes `POST /agent/start` to bootstrap a new workspace.
+The Architect exposes `POST /agent/start` to bootstrap a new workspace and `POST /agent/{agent_name}/architect/chat` to apply feedback.
