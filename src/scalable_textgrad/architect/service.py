@@ -69,6 +69,9 @@ class ArchitectService:
         if dirs.root.exists() and any(dirs.root.iterdir()):
             raise HTTPException(status_code=409, detail=f"Workspace {dirs.root} is not empty")
         dirs.root.mkdir(parents=True, exist_ok=True)
+        gitignore = dirs.root / ".gitignore"
+        if not gitignore.exists():
+            gitignore.write_text("state/\nlogs/\n*.pyc\n__pycache__/\n" + "\n")
 
         manager = StateManager(dirs)
         manager.ensure_layout()

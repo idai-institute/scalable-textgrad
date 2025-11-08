@@ -48,7 +48,6 @@ def test_start_agent_creates_workspace() -> None:
     assert workspace.name == "demo"
     assert (workspace / "state").exists()
     assert (workspace / "state" / "active.state.json").exists()
-    assert not (workspace / ".gitignore").exists()
     assert stub.calls == [workspace]
 
 
