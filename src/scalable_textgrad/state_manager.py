@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, Literal
 
 from filelock import FileLock
 
 from .config import AgentDirectories
+
+StateTarget = Literal["active", "staging"]
 
 
 class StateDocument(dict):
@@ -24,7 +27,7 @@ class StateDocument(dict):
 
 
 class StateManager:
-    """Provides typed access to the agent state file."""
+    """Provides typed access to active and staging state files."""
 
     def __init__(self, dirs: AgentDirectories) -> None:
         self.dirs = dirs
@@ -32,13 +35,14 @@ class StateManager:
 
     def ensure_layout(self) -> None:
         self.dirs.state_dir.mkdir(parents=True, exist_ok=True)
-        if not self.dirs.active_state_file.exists():
-            doc = StateDocument(data={})
-            self.dirs.active_state_file.write_text(json.dumps(doc, indent=2) + "\n")
+        for path in (self.dirs.active_state_file, self.dirs.staging_state_file):
+            if not path.exists():
+                doc = StateDocument(data={})
+                path.write_text(json.dumps(doc, indent=2) + "\n")
         self.dirs.state_lock_file.touch(exist_ok=True)
 
-    def read_state(self) -> StateDocument:
-        path = self.dirs.active_state_file
+    def read_state(self, target: StateTarget) -> StateDocument:
+        path = self._path_for(target)
         if not path.exists():
             self.ensure_layout()
         raw = json.loads(path.read_text()) if path.exists() else {}
@@ -46,12 +50,19 @@ class StateManager:
         doc.payload  # ensure payload
         return doc
 
-    def write_state(self, payload: Dict[str, Any]) -> None:
+    def write_state(self, target: StateTarget, payload: Dict[str, Any]) -> None:
         doc = StateDocument({"data": payload})
-        path = self.dirs.active_state_file
+        path = self._path_for(target)
         path.write_text(json.dumps(doc, indent=2) + "\n")
+
+    def promote(self) -> None:
+        staging = self.read_state("staging")
+        self.write_state("active", staging.payload)
 
     @contextmanager
     def lock(self) -> Any:
         with self._lock:
             yield
+
+    def _path_for(self, target: StateTarget) -> Path:
+        return self.dirs.active_state_file if target == "active" else self.dirs.staging_state_file

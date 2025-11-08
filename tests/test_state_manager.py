@@ -14,11 +14,12 @@ def make_manager(tmp_path: Path) -> StateManager:
     return manager
 
 
-def test_write_and_read(tmp_path: Path) -> None:
+def test_write_and_promote(tmp_path: Path) -> None:
     manager = make_manager(tmp_path)
-    initial = manager.read_state()
-    assert initial.payload == {}
+    staging_doc = manager.read_state("staging")
+    assert staging_doc.payload == {}
+    manager.write_state("staging", {"value": 42})
 
-    manager.write_state({"value": 42})
-    active = manager.read_state()
+    manager.promote()
+    active = manager.read_state("active")
     assert active.payload["value"] == 42
