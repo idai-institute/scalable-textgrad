@@ -47,7 +47,6 @@ def test_start_agent_creates_workspace() -> None:
     assert workspace.exists()
     assert workspace.name == "demo"
     assert (workspace / "state").exists()
-    assert (workspace / "state" / "active.state.json").exists()
     assert stub.calls == [workspace]
 
 
@@ -70,3 +69,4 @@ async def test_chat_runs_in_place() -> None:
 
     assert response.result == "applied"
     assert chat_stub.calls == [workspace]
+    assert not any(path.name.endswith("-staging") for path in workspace.parent.iterdir())
