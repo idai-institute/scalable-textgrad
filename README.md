@@ -1,6 +1,6 @@
 # Scalable TextGrad Platform
 
-Implements the Architect service described in the design docs. Provides shared helper libraries for state tracking and Codex orchestration.
+Implements the Architect service described in the design docs. Provides shared helper libraries for state tracking, git-backed versioning, and Codex orchestration.
 
 ## Quickstart
 
@@ -18,7 +18,7 @@ Useful environment variables (prefixed with `STG_`):
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `STG_WORKSPACE_ROOT` | Root directory that stores agent workspaces | `./agents` |
+| `STG_WORKSPACE_ROOT` | Root directory that stores version worktrees | `./agents` |
 | `STG_CODEX_COMMAND` | Path to the Codex CLI executable | `codex` |
 
-The Architect exposes `POST /agent/start` to bootstrap a new workspace and `POST /agent/{agent_name}/architect/chat` to apply feedback.
+The Architect exposes `POST /agent/start` to bootstrap a new workspace and `POST /agent/{version}/architect/chat` to apply feedback.
