@@ -137,7 +137,7 @@ class ArchitectService:
     ) -> ArchitectChatResponse:
         metadata = load_metadata(dirs.metadata_file)
         repo = GitRepository.open(dirs.root)
-        staging_dir = dirs.staging_path()
+        staging_dir = dirs.staging_path(self.settings.staging_suffix)
         repo.clone_to(staging_dir)
         prompt = self._feedback_prompt(request.message)
         try:

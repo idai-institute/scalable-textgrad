@@ -20,16 +20,17 @@ class AgentDirectories(BaseModel):
     tests_file: Path
     runner_file: Path
 
-    def staging_path(self) -> Path:
-        """Return the path for the staging clone at `<root>-staging`."""
+    def staging_path(self, suffix: str) -> Path:
+        """Return the path for the staging clone, typically `<root>-staging`."""
 
-        return self.root.parent / f"{self.root.name}-staging"
+        return self.root.parent / f"{self.root.name}{suffix}"
 
 
 class AgentSettings(BaseSettings):
     """Global configuration for services and helpers."""
 
     workspace_root: Path = Field(default_factory=lambda: Path.cwd() / "agents")
+    staging_suffix: str = "-staging"
     metadata_filename: str = "metadata.json"
     active_state_filename: str = "active.state.json"
     staging_state_filename: str = "staging.state.json"
