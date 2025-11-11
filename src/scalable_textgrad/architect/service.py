@@ -11,6 +11,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from ..ci import run_ci
 from ..codex_client import CodexRunner, CodexError
 from ..config import AgentDirectories, AgentSettings, resolve_workspace
 from ..git_repo import GitRepository
@@ -150,6 +151,11 @@ class ArchitectService:
 
         staging_repo = GitRepository.open(staging_dir)
         if staging_repo.is_clean():
+            shutil.rmtree(staging_dir, ignore_errors=True)
+            return ArchitectChatResponse(result="rejected")
+
+        ci_result = run_ci(staging_dir)
+        if not ci_result.success:
             shutil.rmtree(staging_dir, ignore_errors=True)
             return ArchitectChatResponse(result="rejected")
 
