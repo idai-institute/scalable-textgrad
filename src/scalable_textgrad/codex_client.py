@@ -44,7 +44,7 @@ class CodexRunner:
         if not executable:
             raise CodexError("Codex CLI not found in PATH; set STG_CODEX_COMMAND")
 
-        cmd: list[str] = [executable, "exec", prompt]
+        cmd: List[str] = [executable, "exec", prompt]
         if sandbox:
             cmd += ["--sandbox", sandbox]
         if full_auto:
