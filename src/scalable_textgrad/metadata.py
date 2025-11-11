@@ -10,7 +10,7 @@ import semver
 from pydantic import BaseModel, ConfigDict, Field
 
 
-DEFAULT_VERSION = "0.0.1"
+DEFAULT_VERSION = "0.0.0"
 class VersionMetadata(BaseModel):
     """Metadata describing the active version."""
 

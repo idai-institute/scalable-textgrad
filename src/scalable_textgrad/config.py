@@ -36,7 +36,7 @@ class AgentSettings(BaseSettings):
     state_dirname: str = "state"
     logs_dirname: str = "logs"
     codex_command: str = "codex"
-    default_version: str = "0.0.1"
+    default_version: str = "0.0.0"
     tests_filename: str = "tests.py"
     runner_filename: str = "runner.py"
     registry_filename: str = "version_registry.json"
