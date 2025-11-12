@@ -49,6 +49,8 @@ class CodexRunner:
             cmd += ["--sandbox", sandbox]
         if full_auto:
             cmd.append("--full-auto")
+        if self.settings.codex_profile:
+            cmd += ["--profile", self.settings.codex_profile]
         if extra_args:
             cmd.extend(extra_args)
 

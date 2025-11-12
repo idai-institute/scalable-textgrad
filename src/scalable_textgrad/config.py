@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
+
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,6 +39,7 @@ class AgentSettings(BaseSettings):
     state_dirname: str = "state"
     logs_dirname: str = "logs"
     codex_command: str = "codex"
+    codex_profile: Optional[str] = None
     default_version: str = "0.0.0"
     tests_filename: str = "tests.py"
     runner_filename: str = "runner.py"
