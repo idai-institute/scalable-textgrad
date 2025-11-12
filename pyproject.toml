@@ -1,7 +1,7 @@
 [project]
 name = "scalable-textgrad"
 version = "0.1.0"
-description = "Evolvable agent platform with an Architect service"
+description = "Evolvable agent platform with Architect and Version Manager services"
 authors = [{name = "Codex"}]
 requires-python = ">=3.11"
 dependencies = [
