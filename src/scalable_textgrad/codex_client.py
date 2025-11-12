@@ -23,6 +23,7 @@ class CodexResult:
     exit_code: int
     stdout: str
     stderr: str
+    last_message: str | None = None
 
 
 class CodexRunner:
@@ -63,9 +64,11 @@ class CodexRunner:
             text=True,
             check=False,
         )
+        last_message = process.stdout.strip().splitlines()[-1] if process.stdout.strip() else None
         result = CodexResult(
             exit_code=process.returncode,
             stdout=process.stdout,
             stderr=process.stderr,
+            last_message=last_message,
         )
         return result

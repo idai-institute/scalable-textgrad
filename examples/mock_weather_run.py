@@ -22,6 +22,7 @@ class DummyCodexRunner:
             exit_code=0,
             stdout="dummy",
             stderr="",
+            last_message="dummy run",
         )
 
     def _write_initial_files(self, path: Path) -> None:
