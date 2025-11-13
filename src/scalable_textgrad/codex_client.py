@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, List, Optional
 
 from .config import AgentSettings
 
@@ -24,6 +25,7 @@ class CodexResult:
     stdout: str
     stderr: str
     last_message: str | None = None
+    events: Optional[List[dict]] = None
 
 
 class CodexRunner:
@@ -37,6 +39,7 @@ class CodexRunner:
         prompt: str,
         workdir: Path,
         *,
+        json_output: bool = False,
         full_auto: bool = True,
         sandbox: str = "danger-full-access",
         extra_args: Optional[Iterable[str]] = None,
@@ -50,6 +53,8 @@ class CodexRunner:
             cmd += ["--sandbox", sandbox]
         if full_auto:
             cmd.append("--full-auto")
+        if json_output:
+            cmd.append("--json")
         if self.settings.codex_profile:
             cmd += ["--profile", self.settings.codex_profile]
         if extra_args:
@@ -71,4 +76,6 @@ class CodexRunner:
             stderr=process.stderr,
             last_message=last_message,
         )
+        if json_output and process.stdout.strip():
+            result.events = [json.loads(line) for line in process.stdout.splitlines() if line.strip()]
         return result
