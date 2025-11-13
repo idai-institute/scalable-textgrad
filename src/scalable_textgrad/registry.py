@@ -1,4 +1,4 @@
-"""Persistent registry of agent versions."""
+"""Persistent registry of agent versions and runtime endpoints."""
 
 from __future__ import annotations
 
@@ -10,14 +10,26 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .metadata import VersionMetadata
+
+
+class ServiceEndpoint(BaseModel):
+    base_url: str
+    kind: str
+
 
 class VersionRecord(BaseModel):
     version: str
     commit_hash: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    runner: Optional[ServiceEndpoint] = None
 
     model_config = ConfigDict(extra="ignore")
+
+    def update_from_metadata(self, metadata: VersionMetadata) -> None:
+        self.version = metadata.version
+        self.updated_at = datetime.utcnow()
 
 
 class VersionRegistry:
@@ -55,6 +67,24 @@ class VersionRegistry:
             if not record:
                 record = VersionRecord(version=version, commit_hash=commit_hash)
             record.version = version
+            record.updated_at = datetime.utcnow()
+            self._records[commit_hash] = record
+            self._flush()
+            return record
+
+    def register_service(
+        self,
+        *,
+        commit_hash: str,
+        version: str,
+        base_url: str,
+    ) -> VersionRecord:
+        with self._lock:
+            record = self._records.get(commit_hash)
+            if not record:
+                record = VersionRecord(version=version, commit_hash=commit_hash)
+            endpoint = ServiceEndpoint(base_url=base_url, kind="runner")
+            record.runner = endpoint
             record.updated_at = datetime.utcnow()
             self._records[commit_hash] = record
             self._flush()
