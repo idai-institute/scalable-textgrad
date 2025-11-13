@@ -27,4 +27,4 @@ Useful environment variables (prefixed with `STG_`):
 | `STG_WORKSPACE_ROOT` | Root directory that stores version worktrees | `./agents` |
 | `STG_CODEX_COMMAND` | Path to the Codex CLI executable | `codex` |
 
-The Architect exposes `POST /agent/start` to bootstrap a new workspace and `POST /agent/{version}/architect/chat` to apply feedback. The Version Manager keeps an index of all known versions along with their registered Runner endpoints.
+The Architect exposes `POST /agent/start` to bootstrap a new workspace and `POST /agent/{version}/architect/chat` to apply feedback. The Version Manager keeps an index of all known versions and proxies `/agent/{version}/runner` traffic to the registered Runner service for that version.
