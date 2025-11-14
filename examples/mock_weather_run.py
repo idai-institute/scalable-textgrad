@@ -40,6 +40,12 @@ class DummyCodexRunner:
                 print(json.dumps(describe_weather("Testville")))
             """
         ).strip() + "\n"
+        tuner = dedent(
+            """
+            def record_reward(conversation_id: str, reward: float) -> dict:
+                return {"conversation_id": conversation_id, "reward": reward}
+            """
+        ).strip() + "\n"
         tests = dedent(
             """
             from runner import describe_weather
@@ -52,6 +58,7 @@ class DummyCodexRunner:
             """
         ).strip() + "\n"
         (path / "runner.py").write_text(runner)
+        (path / "tuner.py").write_text(tuner)
         (path / "tests.py").write_text(tests)
 
 
@@ -67,7 +74,7 @@ def main() -> None:
     start_response = architect.start_agent(
         StartAgentRequest(
             agent_name="ROOT",
-            description="A mock weather system that exposes runner skeletons.",
+            description="A mock weather system that exposes runner/tuner skeletons.",
         )
     )
     print("Bootstrap:", start_response)
