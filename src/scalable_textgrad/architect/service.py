@@ -61,8 +61,8 @@ class ArchitectService:
     def _bootstrap_prompt(self, description: str) -> str:
         guidance = (
             "You are the Architect for the scalable-textgrad agent. "
-            "Bootstrap runner.py and tests.py according to the design docs. "
-            "Honor the repository layout: runner.py, tests.py, logs/, state/, metadata.json. "
+            "Bootstrap runner.py, tuner.py, and tests.py according to the design docs. "
+            "Honor the repository layout: runner.py, tuner.py, tests.py, logs/, state/, metadata.json. "
             "Use the helper library where possible."
         )
         return f"""{guidance}\nSystem description:\n{description}\n"""

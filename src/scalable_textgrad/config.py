@@ -21,6 +21,7 @@ class AgentDirectories(BaseModel):
     state_lock_file: Path
     tests_file: Path
     runner_file: Path
+    tuner_file: Path
 
     def staging_path(self, suffix: str) -> Path:
         """Return the path for the staging clone, typically `<root>-staging`."""
@@ -43,6 +44,7 @@ class AgentSettings(BaseSettings):
     default_version: str = "0.0.0"
     tests_filename: str = "tests.py"
     runner_filename: str = "runner.py"
+    tuner_filename: str = "tuner.py"
     registry_filename: str = "version_registry.json"
 
     model_config = SettingsConfigDict(env_prefix="STG_", env_file=".env", extra="allow")
@@ -60,6 +62,7 @@ class AgentSettings(BaseSettings):
             state_lock_file=state_dir / ".lock",
             tests_file=root / self.tests_filename,
             runner_file=root / self.runner_filename,
+            tuner_file=root / self.tuner_filename,
         )
 
     @property

@@ -1,4 +1,4 @@
-"""State manager shared between the Runner and Architect services."""
+"""State manager shared between Runner, Tuner, and Architect."""
 
 from __future__ import annotations
 
