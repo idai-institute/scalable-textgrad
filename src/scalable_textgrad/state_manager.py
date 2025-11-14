@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, Optional
 from uuid import uuid4
 
 from filelock import FileLock
@@ -35,6 +35,10 @@ class StateDocument(dict):
         return data
 
 
+class StateValidationError(RuntimeError):
+    pass
+
+
 class StateManager:
     """Provides typed access to active and staging state files."""
 
@@ -60,17 +64,23 @@ class StateManager:
         doc.payload  # ensure payload
         return doc
 
-    def write_state(self, target: StateTarget, payload: Dict[str, Any]) -> str:
+    def write_state(self, target: StateTarget, payload: Dict[str, Any], expected_token: Optional[str]) -> str:
         doc = self.read_state(target)
+        if expected_token and doc.token != expected_token:
+            raise StateValidationError(
+                f"Stale state token for {target}: have {expected_token}, current {doc.token}"
+            )
         doc["data"] = payload
         doc["version_id"] = uuid4().hex
         path = self._path_for(target)
         path.write_text(json.dumps(doc, indent=2) + "\n")
         return doc.token
 
-    def promote(self) -> str:
+    def promote(self, expected_staging_token: Optional[str] = None) -> str:
         staging = self.read_state("staging")
-        token = self.write_state("active", staging.payload)
+        if expected_staging_token and staging.token != expected_staging_token:
+            raise StateValidationError("Staging state token mismatch during promote")
+        token = self.write_state("active", staging.payload, expected_token=None)
         return token
 
     @contextmanager
