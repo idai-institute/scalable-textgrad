@@ -9,6 +9,7 @@ def test_registry_persists(tmp_path):
     registry.register_service(
         commit_hash="abc123",
         version="0.0.1",
+        component="runner",
         base_url="http://localhost:9000",
     )
     registry.upsert(commit_hash="abc123", version="0.0.1")

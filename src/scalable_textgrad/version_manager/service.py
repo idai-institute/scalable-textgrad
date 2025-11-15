@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
@@ -16,12 +18,14 @@ app = FastAPI(title="Version Manager", version="0.1.0")
 class RegisterServiceRequest(BaseModel):
     version: str
     commit_hash: str
-    base_url: str = Field(..., description="Base URL where the runner listens")
+    component: Literal["runner", "tuner"]
+    base_url: str = Field(..., description="Base URL where the component listens")
 
 
 class RegisterServiceResponse(BaseModel):
     version: str
     commit_hash: str
+    component: str
     base_url: str
 
 
@@ -35,11 +39,13 @@ class VersionManagerService:
     async def aclose(self) -> None:
         await self._client.aclose()
 
-    async def proxy(self, version: str, path_suffix: str, request: Request) -> Response:
+    async def proxy(self, version: str, component: str, path_suffix: str, request: Request) -> Response:
         record = self._resolve_record(version)
-        endpoint = record.runner
+        if component not in {"runner", "tuner"}:
+            raise HTTPException(status_code=404, detail="Unknown component")
+        endpoint = getattr(record, component, None)
         if not isinstance(endpoint, ServiceEndpoint):
-            raise HTTPException(status_code=404, detail=f"runner not registered for {version}")
+            raise HTTPException(status_code=404, detail=f"{component} not registered for {version}")
         url = endpoint.base_url.rstrip("/")
         if path_suffix:
             url = f"{url}/{path_suffix}"
@@ -59,6 +65,7 @@ class VersionManagerService:
         record = self.registry.register_service(
             commit_hash=payload.commit_hash,
             version=payload.version,
+            component=payload.component,
             base_url=payload.base_url,
         )
         log_event(
@@ -66,11 +73,13 @@ class VersionManagerService:
             "service_registered",
             version=payload.version,
             commit=payload.commit_hash,
+            component=payload.component,
             base_url=payload.base_url,
         )
         return RegisterServiceResponse(
             version=record.version,
             commit_hash=record.commit_hash,
+            component=payload.component,
             base_url=payload.base_url,
         )
 
@@ -90,21 +99,21 @@ def register_service(payload: RegisterServiceRequest) -> RegisterServiceResponse
 
 
 @app.api_route(
-    "/agent/{version}/runner",
+    "/agent/{version}/{component}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     include_in_schema=False,
 )
-async def proxy_runner_root(version: str, request: Request) -> Response:
-    return await _service.proxy(version, "", request)
+async def proxy_component_root(version: str, component: str, request: Request) -> Response:
+    return await _service.proxy(version, component, "", request)
 
 
 @app.api_route(
-    "/agent/{version}/runner/{path:path}",
+    "/agent/{version}/{component}/{path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     include_in_schema=False,
 )
-async def proxy_runner(version: str, path: str, request: Request) -> Response:
-    return await _service.proxy(version, path, request)
+async def proxy_component(version: str, component: str, path: str, request: Request) -> Response:
+    return await _service.proxy(version, component, path, request)
 
 
 @app.on_event("shutdown")

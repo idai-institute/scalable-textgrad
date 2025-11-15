@@ -24,6 +24,7 @@ class VersionRecord(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     runner: Optional[ServiceEndpoint] = None
+    tuner: Optional[ServiceEndpoint] = None
 
     model_config = ConfigDict(extra="ignore")
 
@@ -77,14 +78,20 @@ class VersionRegistry:
         *,
         commit_hash: str,
         version: str,
+        component: str,
         base_url: str,
     ) -> VersionRecord:
         with self._lock:
             record = self._records.get(commit_hash)
             if not record:
                 record = VersionRecord(version=version, commit_hash=commit_hash)
-            endpoint = ServiceEndpoint(base_url=base_url, kind="runner")
-            record.runner = endpoint
+            endpoint = ServiceEndpoint(base_url=base_url, kind=component)
+            if component == "runner":
+                record.runner = endpoint
+            elif component == "tuner":
+                record.tuner = endpoint
+            else:
+                raise ValueError(f"Unknown component {component}")
             record.updated_at = datetime.utcnow()
             self._records[commit_hash] = record
             self._flush()
