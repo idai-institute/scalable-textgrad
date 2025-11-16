@@ -16,7 +16,7 @@ from ..codex_client import CodexRunner, CodexError
 from ..config import AgentDirectories, AgentSettings, resolve_workspace
 from ..git_repo import GitRepository
 from ..logging_utils import configure_logging, log_event
-from ..metadata import load_metadata, save_metadata
+from ..metadata import VersionBump, load_metadata, save_metadata
 from ..registry import VersionRegistry
 from ..state_manager import StateManager
 
@@ -36,6 +36,7 @@ class StartAgentResponse(BaseModel):
 
 class ArchitectChatRequest(BaseModel):
     message: str
+    bump: VersionBump = VersionBump.PATCH
 
 
 class ArchitectChatResponse(BaseModel):
@@ -159,7 +160,7 @@ class ArchitectService:
             shutil.rmtree(staging_dir, ignore_errors=True)
             return ArchitectChatResponse(result="rejected")
 
-        metadata.bump()
+        metadata.bump(request.bump)
         stage_metadata = Path(staging_dir) / self.settings.metadata_filename
         save_metadata(stage_metadata, metadata)
         commit_message = f"Architect update: {request.message[:80]}"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -11,6 +12,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 DEFAULT_VERSION = "0.0.0"
+
+
+class VersionBump(str, Enum):
+    """Supported semantic version bumps."""
+
+    PATCH = "patch"
+    MINOR = "minor"
+    MAJOR = "major"
+
+
 class VersionMetadata(BaseModel):
     """Metadata describing the active version."""
 
@@ -21,11 +32,16 @@ class VersionMetadata(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    def bump(self) -> str:
-        """Return the next patch version."""
+    def bump(self, bump: VersionBump) -> str:
+        """Return the new semantic version after applying `bump`."""
 
         current = semver.VersionInfo.parse(self.version)
-        new_version = current.bump_patch()
+        if bump is VersionBump.MAJOR:
+            new_version = current.bump_major()
+        elif bump is VersionBump.MINOR:
+            new_version = current.bump_minor()
+        else:
+            new_version = current.bump_patch()
         self.version = str(new_version)
         self.updated_at = datetime.utcnow()
         return self.version
