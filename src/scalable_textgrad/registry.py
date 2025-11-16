@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -56,6 +56,10 @@ class VersionRegistry:
         payload = {"records": [record.model_dump(mode="json") for record in self._records.values()]}
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
         self.storage_path.write_text(json.dumps(payload, indent=2) + "\n")
+
+    def list_versions(self) -> List[VersionRecord]:
+        with self._lock:
+            return sorted(self._records.values(), key=lambda r: r.created_at, reverse=True)
 
     def upsert(
         self,

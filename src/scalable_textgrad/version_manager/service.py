@@ -83,6 +83,17 @@ class VersionManagerService:
             base_url=payload.base_url,
         )
 
+    def list_versions(self) -> dict:
+        records = self.registry.list_versions()
+        return {"versions": [self._serialize_record(record) for record in records]}
+
+    def _serialize_record(self, record: VersionRecord) -> dict:
+        payload = {
+            "version": record.version,
+            "created_at": record.created_at.isoformat(),
+        }
+        return payload
+
     def _resolve_record(self, version: str) -> VersionRecord:
         record = self.registry.get_by_version(version)
         if record:
@@ -96,6 +107,11 @@ _service = VersionManagerService()
 @app.post("/agents/register")
 def register_service(payload: RegisterServiceRequest) -> RegisterServiceResponse:
     return _service.register_service(payload)
+
+
+@app.get("/versions")
+def list_versions() -> dict:
+    return _service.list_versions()
 
 
 @app.api_route(
