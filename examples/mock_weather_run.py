@@ -12,6 +12,7 @@ from scalable_textgrad.architect.service import (
     StartAgentRequest,
 )
 from scalable_textgrad.codex_client import CodexResult
+from scalable_textgrad.version_manager.service import VersionManagerService
 
 
 class DummyCodexRunner:
@@ -127,6 +128,11 @@ async def main() -> None:
         ),
     )
     print("Chat:", chat_response)
+
+    vm = VersionManagerService()
+    listing = vm.list_versions()
+    print("Versions:", listing)
+    await vm.aclose()
 
 
 if __name__ == "__main__":
