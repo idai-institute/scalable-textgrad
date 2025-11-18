@@ -9,6 +9,7 @@ from typing import Any, Dict, Literal, Optional
 from uuid import uuid4
 
 from filelock import FileLock
+from jsonschema import Draft202012Validator
 
 from .config import AgentDirectories
 
@@ -45,6 +46,14 @@ class StateManager:
     def __init__(self, dirs: AgentDirectories) -> None:
         self.dirs = dirs
         self._lock = FileLock(str(dirs.state_lock_file))
+        self._validator = self._load_validator(dirs.schema_file)
+
+    @staticmethod
+    def _load_validator(path: Path) -> Optional[Draft202012Validator]:
+        if path.exists():
+            schema = json.loads(path.read_text())
+            return Draft202012Validator(schema)
+        return None
 
     def ensure_layout(self) -> None:
         self.dirs.state_dir.mkdir(parents=True, exist_ok=True)
@@ -70,6 +79,11 @@ class StateManager:
             raise StateValidationError(
                 f"Stale state token for {target}: have {expected_token}, current {doc.token}"
             )
+        if self._validator is not None:
+            errors = sorted(self._validator.iter_errors(payload), key=lambda e: e.path)
+            if errors:
+                summaries = "; ".join(f"{'.'.join(map(str, err.path))}: {err.message}" for err in errors)
+                raise StateValidationError(summaries)
         doc["data"] = payload
         doc["version_id"] = uuid4().hex
         path = self._path_for(target)

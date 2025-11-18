@@ -15,6 +15,7 @@ class AgentDirectories(BaseModel):
     root: Path
     state_dir: Path
     logs_dir: Path
+    schema_file: Path
     metadata_file: Path
     active_state_file: Path
     staging_state_file: Path
@@ -35,6 +36,7 @@ class AgentSettings(BaseSettings):
     workspace_root: Path = Field(default_factory=lambda: Path.cwd() / "agents")
     staging_suffix: str = "-staging"
     metadata_filename: str = "metadata.json"
+    schema_filename: str = "state_schema.json"
     active_state_filename: str = "active.state.json"
     staging_state_filename: str = "staging.state.json"
     state_dirname: str = "state"
@@ -56,6 +58,7 @@ class AgentSettings(BaseSettings):
             root=root,
             state_dir=state_dir,
             logs_dir=logs_dir,
+            schema_file=root / self.schema_filename,
             metadata_file=root / self.metadata_filename,
             active_state_file=state_dir / self.active_state_filename,
             staging_state_file=state_dir / self.staging_state_filename,
