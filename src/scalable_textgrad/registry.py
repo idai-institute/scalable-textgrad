@@ -16,6 +16,10 @@ from .metadata import VersionMetadata
 class ServiceEndpoint(BaseModel):
     base_url: str
     kind: str
+    last_heartbeat: datetime = Field(default_factory=datetime.utcnow)
+
+    def touch(self) -> None:
+        self.last_heartbeat = datetime.utcnow()
 
 
 class VersionRecord(BaseModel):
