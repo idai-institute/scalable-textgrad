@@ -92,6 +92,10 @@ class VersionManagerService:
             "version": record.version,
             "created_at": record.created_at.isoformat(),
         }
+        if record.runner:
+            payload["runner"] = {"mcp_endpoint": f"/agent/{record.version}/runner"}
+        if record.tuner:
+            payload["tuner"] = {"mcp_endpoint": f"/agent/{record.version}/tuner"}
         return payload
 
     def _resolve_record(self, version: str) -> VersionRecord:
