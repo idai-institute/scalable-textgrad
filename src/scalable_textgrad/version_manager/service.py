@@ -90,6 +90,7 @@ class VersionManagerService:
     def _serialize_record(self, record: VersionRecord) -> dict:
         payload = {
             "version": record.version,
+            "commit_hash": record.commit_hash,
             "created_at": record.created_at.isoformat(),
         }
         if record.runner:
@@ -99,6 +100,9 @@ class VersionManagerService:
         return payload
 
     def _resolve_record(self, version: str) -> VersionRecord:
+        record = self.registry.get_by_commit(version)
+        if record:
+            return record
         record = self.registry.get_by_version(version)
         if record:
             return record
