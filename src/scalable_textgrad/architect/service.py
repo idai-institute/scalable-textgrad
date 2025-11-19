@@ -32,6 +32,7 @@ class StartAgentResponse(BaseModel):
     workspace: str
     version: str
     commit_hash: str
+    notes: str
 
 
 class ArchitectChatRequest(BaseModel):
@@ -43,6 +44,7 @@ class ArchitectChatResponse(BaseModel):
     result: str
     new_version: Optional[str] = None
     commit_hash: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class ArchitectService:
@@ -112,6 +114,7 @@ class ArchitectService:
             workspace=str(new_root),
             version=metadata.version,
             commit_hash=commit_hash,
+            notes=result.last_message or "Bootstrap completed",
         )
 
     def _resolve_dirs(self, version: str) -> AgentDirectories:
@@ -153,12 +156,12 @@ class ArchitectService:
         staging_repo = GitRepository.open(staging_dir)
         if staging_repo.is_clean():
             shutil.rmtree(staging_dir, ignore_errors=True)
-            return ArchitectChatResponse(result="rejected")
+            return ArchitectChatResponse(result="rejected", notes="No changes produced")
 
         ci_result = run_ci(staging_dir)
         if not ci_result.success:
             shutil.rmtree(staging_dir, ignore_errors=True)
-            return ArchitectChatResponse(result="rejected")
+            return ArchitectChatResponse(result="rejected", notes=ci_result.summary)
 
         metadata.bump(request.bump)
         stage_metadata = Path(staging_dir) / self.settings.metadata_filename
@@ -186,6 +189,7 @@ class ArchitectService:
             result="committed",
             new_version=metadata.version,
             commit_hash=commit_hash,
+            notes=result.last_message,
         )
 
 
