@@ -130,7 +130,7 @@ async def main() -> None:
     print("Chat:", chat_response)
 
     vm = VersionManagerService()
-    listing = vm.list_versions()
+    listing = vm.list_versions(limit=10, offset=0)
     print("Versions:", listing)
     await vm.aclose()
 
