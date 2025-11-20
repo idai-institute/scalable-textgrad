@@ -26,6 +26,10 @@ app = FastAPI(title="Architect Service", version="0.1.0")
 class StartAgentRequest(BaseModel):
     agent_name: str = Field(default="ROOT", description="Name of the agent workspace")
     description: str = Field(..., description="High-level description of the system")
+    bootstrap_prompt: Optional[str] = Field(
+        default=None,
+        description="Optional custom prompt handed to Codex during bootstrapping",
+    )
 
 
 class StartAgentResponse(BaseModel):
@@ -91,8 +95,9 @@ class ArchitectService:
         metadata = load_metadata(dirs.metadata_file)
 
         repo = GitRepository.open(dirs.root)
+        bootstrap_prompt = request.bootstrap_prompt or self._bootstrap_prompt(request.description)
         try:
-            result = self.codex.run(self._bootstrap_prompt(request.description), dirs.root)
+            result = self.codex.run(bootstrap_prompt, dirs.root)
         except CodexError as err:
             raise HTTPException(status_code=500, detail=str(err)) from err
         if result.exit_code != 0:
