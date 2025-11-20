@@ -61,9 +61,10 @@ class VersionRegistry:
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
         self.storage_path.write_text(json.dumps(payload, indent=2) + "\n")
 
-    def list_versions(self) -> List[VersionRecord]:
+    def list_versions(self, limit: int = 50, offset: int = 0) -> List[VersionRecord]:
         with self._lock:
-            return sorted(self._records.values(), key=lambda r: r.created_at, reverse=True)
+            records = sorted(self._records.values(), key=lambda r: r.created_at, reverse=True)
+            return records[offset : offset + limit]
 
     def upsert(
         self,
@@ -115,3 +116,7 @@ class VersionRegistry:
     def get_by_commit(self, commit_hash: str) -> Optional[VersionRecord]:
         with self._lock:
             return self._records.get(commit_hash)
+
+    def count(self) -> int:
+        with self._lock:
+            return len(self._records)

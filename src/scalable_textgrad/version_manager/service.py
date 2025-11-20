@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from ..config import AgentSettings
@@ -83,9 +84,13 @@ class VersionManagerService:
             base_url=payload.base_url,
         )
 
-    def list_versions(self) -> dict:
-        records = self.registry.list_versions()
-        return {"versions": [self._serialize_record(record) for record in records]}
+    def list_versions(self, limit: int, offset: int) -> dict:
+        total = self.registry.count()
+        records = self.registry.list_versions(limit=limit, offset=offset)
+        return {
+            "versions": [self._serialize_record(record) for record in records],
+            "pagination": {"limit": limit, "offset": offset, "total_estimate": total},
+        }
 
     def _serialize_record(self, record: VersionRecord) -> dict:
         payload = {
@@ -118,8 +123,8 @@ def register_service(payload: RegisterServiceRequest) -> RegisterServiceResponse
 
 
 @app.get("/versions")
-def list_versions() -> dict:
-    return _service.list_versions()
+def list_versions(limit: int = 50, offset: int = 0) -> dict:
+    return _service.list_versions(limit=limit, offset=offset)
 
 
 @app.api_route(
