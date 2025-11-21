@@ -19,7 +19,7 @@ app = FastAPI(title="Version Manager", version="0.1.0")
 class RegisterServiceRequest(BaseModel):
     version: str
     commit_hash: str
-    component: Literal["runner", "tuner"]
+    component: Literal["runner", "tuner", "architect"]
     base_url: str = Field(..., description="Base URL where the component listens")
 
 
@@ -42,7 +42,7 @@ class VersionManagerService:
 
     async def proxy(self, version: str, component: str, path_suffix: str, request: Request) -> Response:
         record = self._resolve_record(version)
-        if component not in {"runner", "tuner"}:
+        if component not in {"runner", "tuner", "architect"}:
             raise HTTPException(status_code=404, detail="Unknown component")
         endpoint = getattr(record, component, None)
         if not isinstance(endpoint, ServiceEndpoint):
@@ -102,6 +102,8 @@ class VersionManagerService:
             payload["runner"] = {"mcp_endpoint": f"/agent/{record.version}/runner"}
         if record.tuner:
             payload["tuner"] = {"mcp_endpoint": f"/agent/{record.version}/tuner"}
+        if record.architect:
+            payload["architect"] = {"rest_endpoint": f"/agent/{record.version}/architect"}
         return payload
 
     def _resolve_record(self, version: str) -> VersionRecord:

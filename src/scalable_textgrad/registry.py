@@ -29,6 +29,7 @@ class VersionRecord(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     runner: Optional[ServiceEndpoint] = None
     tuner: Optional[ServiceEndpoint] = None
+    architect: Optional[ServiceEndpoint] = None
 
     model_config = ConfigDict(extra="ignore")
 
@@ -99,6 +100,8 @@ class VersionRegistry:
                 record.runner = endpoint
             elif component == "tuner":
                 record.tuner = endpoint
+            elif component == "architect":
+                record.architect = endpoint
             else:
                 raise ValueError(f"Unknown component {component}")
             record.updated_at = datetime.utcnow()
