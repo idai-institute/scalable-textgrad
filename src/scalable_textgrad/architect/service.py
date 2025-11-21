@@ -41,6 +41,8 @@ class StartAgentResponse(BaseModel):
 
 class ArchitectChatRequest(BaseModel):
     message: str
+    attachments: list[str] = Field(default_factory=list)
+    dry_run: bool = False
     bump: VersionBump = VersionBump.PATCH
 
 
@@ -74,11 +76,12 @@ class ArchitectService:
         )
         return f"""{guidance}\nSystem description:\n{description}\n"""
 
-    def _feedback_prompt(self, message: str) -> str:
+    def _feedback_prompt(self, message: str, attachments: list[str]) -> str:
+        attachment_txt = "\n".join(f"Attachment: {uri}" for uri in attachments)
         return (
             "You are Codex acting as the Architect's implementation sub-agent. "
             "Interpret the following feedback and apply necessary updates.\n"
-            f"Feedback:\n{message}\n"
+            f"Feedback:\n{message}\n{attachment_txt}\n"
         )
 
     def start_agent(self, request: StartAgentRequest) -> StartAgentResponse:
@@ -148,7 +151,7 @@ class ArchitectService:
         repo = GitRepository.open(dirs.root)
         staging_dir = dirs.staging_path(self.settings.staging_suffix)
         repo.clone_to(staging_dir)
-        prompt = self._feedback_prompt(request.message)
+        prompt = self._feedback_prompt(request.message, request.attachments)
         try:
             result = self.codex.run(prompt, staging_dir)
         except CodexError as err:
@@ -162,6 +165,12 @@ class ArchitectService:
         if staging_repo.is_clean():
             shutil.rmtree(staging_dir, ignore_errors=True)
             return ArchitectChatResponse(result="rejected", notes="No changes produced")
+
+        if request.dry_run:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+            return ArchitectChatResponse(
+                result="rejected", notes="Dry run requested; changes not applied"
+            )
 
         ci_result = run_ci(staging_dir)
         if not ci_result.success:
