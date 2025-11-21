@@ -13,6 +13,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from .metadata import VersionMetadata
 
 
+class TestSummary(BaseModel):
+    status: str = "unknown"
+    last_run: Optional[datetime] = None
+
+
 class ServiceEndpoint(BaseModel):
     base_url: str
     kind: str
@@ -27,6 +32,7 @@ class VersionRecord(BaseModel):
     commit_hash: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    tests: TestSummary = Field(default_factory=TestSummary)
     runner: Optional[ServiceEndpoint] = None
     tuner: Optional[ServiceEndpoint] = None
     architect: Optional[ServiceEndpoint] = None

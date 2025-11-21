@@ -97,6 +97,7 @@ class VersionManagerService:
             "version": record.version,
             "commit_hash": record.commit_hash,
             "created_at": record.created_at.isoformat(),
+            "tests": record.tests.model_dump(mode="json"),
         }
         if record.runner:
             payload["runner"] = {"mcp_endpoint": f"/agent/{record.version}/runner"}
