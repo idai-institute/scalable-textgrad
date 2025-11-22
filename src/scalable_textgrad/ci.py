@@ -37,6 +37,11 @@ class PipelineResult:
 def run_ci(workdir: Path) -> PipelineResult:
     steps: List[StepResult] = []
 
+    # Ruff lint if available
+    if shutil.which("ruff"):
+        result = run_command(["ruff", "check", "--select", "E,F", "--quiet", str(workdir)], cwd=workdir)
+        steps.append(StepResult("ruff", result.exit_code == 0, result.stdout, result.stderr))
+
     tests_path = workdir / "tests.py"
     pytest_bin = shutil.which("pytest")
     if tests_path.exists() and pytest_bin:
