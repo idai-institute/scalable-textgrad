@@ -5,10 +5,10 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import semver
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 
 DEFAULT_VERSION = "0.0.0"
@@ -30,8 +30,7 @@ class VersionMetadata(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     notes: Optional[str] = None
-
-    model_config = ConfigDict(extra="ignore")
+    tags: List[str] = Field(default_factory=list)
 
     def bump(self, bump: VersionBump) -> str:
         """Return the new semantic version after applying `bump`."""

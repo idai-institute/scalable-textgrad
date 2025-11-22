@@ -6,9 +6,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from .metadata import VersionMetadata
 
@@ -33,11 +33,10 @@ class VersionRecord(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     tests: TestSummary = Field(default_factory=TestSummary)
+    tags: List[str] = Field(default_factory=list)
     runner: Optional[ServiceEndpoint] = None
     tuner: Optional[ServiceEndpoint] = None
     architect: Optional[ServiceEndpoint] = None
-
-    model_config = ConfigDict(extra="ignore")
 
     def update_from_metadata(self, metadata: VersionMetadata) -> None:
         self.version = metadata.version
@@ -78,6 +77,7 @@ class VersionRegistry:
         *,
         commit_hash: str,
         version: str,
+        tags: Optional[Iterable[str]] = None,
     ) -> VersionRecord:
         with self._lock:
             record = self._records.get(commit_hash)
@@ -85,6 +85,8 @@ class VersionRegistry:
                 record = VersionRecord(version=version, commit_hash=commit_hash)
             record.version = version
             record.updated_at = datetime.utcnow()
+            if tags is not None:
+                record.tags = list(tags)
             self._records[commit_hash] = record
             self._flush()
             return record
