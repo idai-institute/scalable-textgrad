@@ -16,6 +16,7 @@ from .metadata import VersionMetadata
 class TestSummary(BaseModel):
     status: str = "unknown"
     last_run: Optional[datetime] = None
+    summary_uri: Optional[str] = None
 
 
 class ServiceEndpoint(BaseModel):
