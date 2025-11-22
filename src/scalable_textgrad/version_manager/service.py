@@ -21,6 +21,7 @@ class RegisterServiceRequest(BaseModel):
     commit_hash: str
     component: Literal["runner", "tuner", "architect"]
     base_url: str = Field(..., description="Base URL where the component listens")
+    tags: list[str] = Field(default_factory=list)
 
 
 class RegisterServiceResponse(BaseModel):
@@ -69,6 +70,12 @@ class VersionManagerService:
             component=payload.component,
             base_url=payload.base_url,
         )
+        if payload.tags:
+            self.registry.upsert(
+                commit_hash=payload.commit_hash,
+                version=payload.version,
+                tags=payload.tags,
+            )
         log_event(
             self.logger,
             "service_registered",
@@ -98,6 +105,7 @@ class VersionManagerService:
             "commit_hash": record.commit_hash,
             "created_at": record.created_at.isoformat(),
             "tests": record.tests.model_dump(mode="json"),
+            "tags": record.tags,
         }
         if record.runner:
             payload["runner"] = {"mcp_endpoint": f"/agent/{record.version}/runner"}

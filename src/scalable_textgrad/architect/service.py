@@ -191,6 +191,7 @@ class ArchitectService:
         self.registry.upsert(
             commit_hash=commit_hash,
             version=metadata.version,
+            tags=list(metadata.tags),
         )
         log_event(
             self.logger,
