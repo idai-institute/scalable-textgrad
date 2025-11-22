@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
@@ -91,9 +91,11 @@ class VersionManagerService:
             base_url=payload.base_url,
         )
 
-    def list_versions(self, limit: int, offset: int) -> dict:
+    def list_versions(self, limit: int, offset: int, since: Optional[datetime]) -> dict:
         total = self.registry.count()
         records = self.registry.list_versions(limit=limit, offset=offset)
+        if since:
+            records = [record for record in records if record.created_at >= since]
         return {
             "versions": [self._serialize_record(record) for record in records],
             "pagination": {"limit": limit, "offset": offset, "total_estimate": total},
@@ -134,8 +136,8 @@ def register_service(payload: RegisterServiceRequest) -> RegisterServiceResponse
 
 
 @app.get("/versions")
-def list_versions(limit: int = 50, offset: int = 0) -> dict:
-    return _service.list_versions(limit=limit, offset=offset)
+def list_versions(limit: int = 50, offset: int = 0, since: Optional[datetime] = None) -> dict:
+    return _service.list_versions(limit=limit, offset=offset, since=since)
 
 
 @app.api_route(
