@@ -15,6 +15,7 @@ def test_registry_persists(tmp_path):
     registry.upsert(
         commit_hash="abc123",
         version="0.0.1",
+        changelog_uri="https://example/changelog",
         tags=["stable"],
     )
 
@@ -23,4 +24,5 @@ def test_registry_persists(tmp_path):
     assert record is not None
     assert record.runner is not None
     assert record.runner.base_url == "http://localhost:9000"
+    assert record.changelog_uri == "https://example/changelog"
     assert "stable" in record.tags

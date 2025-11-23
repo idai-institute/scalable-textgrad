@@ -21,6 +21,7 @@ class RegisterServiceRequest(BaseModel):
     commit_hash: str
     component: Literal["runner", "tuner", "architect"]
     base_url: str = Field(..., description="Base URL where the component listens")
+    changelog_uri: Optional[str] = None
     tags: list[str] = Field(default_factory=list)
 
 
@@ -70,10 +71,11 @@ class VersionManagerService:
             component=payload.component,
             base_url=payload.base_url,
         )
-        if payload.tags:
+        if payload.changelog_uri or payload.tags:
             self.registry.upsert(
                 commit_hash=payload.commit_hash,
                 version=payload.version,
+                changelog_uri=payload.changelog_uri,
                 tags=payload.tags,
             )
         log_event(
@@ -106,6 +108,7 @@ class VersionManagerService:
             "version": record.version,
             "commit_hash": record.commit_hash,
             "created_at": record.created_at.isoformat(),
+            "changelog_uri": record.changelog_uri,
             "tests": record.tests.model_dump(mode="json"),
             "tags": record.tags,
         }

@@ -192,6 +192,7 @@ class ArchitectService:
             commit_hash=commit_hash,
             version=metadata.version,
             tags=list(metadata.tags),
+            changelog_uri=metadata.changelog,
         )
         log_event(
             self.logger,

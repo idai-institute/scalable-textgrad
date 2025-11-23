@@ -29,6 +29,7 @@ class VersionMetadata(BaseModel):
     commit_hash: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    changelog: Optional[str] = None
     notes: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
 

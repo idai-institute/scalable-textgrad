@@ -33,6 +33,7 @@ class VersionRecord(BaseModel):
     commit_hash: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    changelog_uri: Optional[str] = None
     tests: TestSummary = Field(default_factory=TestSummary)
     tags: List[str] = Field(default_factory=list)
     runner: Optional[ServiceEndpoint] = None
@@ -78,6 +79,7 @@ class VersionRegistry:
         *,
         commit_hash: str,
         version: str,
+        changelog_uri: Optional[str] = None,
         tags: Optional[Iterable[str]] = None,
     ) -> VersionRecord:
         with self._lock:
@@ -86,6 +88,8 @@ class VersionRegistry:
                 record = VersionRecord(version=version, commit_hash=commit_hash)
             record.version = version
             record.updated_at = datetime.utcnow()
+            if changelog_uri:
+                record.changelog_uri = changelog_uri
             if tags is not None:
                 record.tags = list(tags)
             self._records[commit_hash] = record
