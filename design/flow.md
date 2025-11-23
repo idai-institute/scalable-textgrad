@@ -34,7 +34,7 @@ The Tuner will most likely expose some sort of structured feedback endpoint. Typ
 If the Architect receives textual feedback, everything is copied in `{agent_dir}-staging` (including the .git). Codex is launched in `{agent_dir}-staging` and it makes whatever updates it thinks are necessary (if any).
 If the update only concerns the state, the Architect only updates the state in the original file. The staging dir is then deleted.
 
-If the update concerns code (and potentially the state too) and tests pass, Codex makes a commit and updates metadata.json (with semver). The commit is pushed to the repo. The staging dir is then renamed to the new commit hash. The Architect, like before, launches the new Runner and Tuner.
+If the update concerns code (and potentially the state too) and tests pass, Codex makes a commit, updates metadata.json (with semver), and puts the changelog in the commit message. The commit is pushed to the repo. The staging dir is then renamed to the new commit hash. The Architect, like before, launches the new Runner and Tuner.
 
 Important: Architect calls are sequential w.r.t. a certain dir, in the sense that you can't run this process twice at the same time on the same dir.
 

@@ -375,6 +375,7 @@ Returns a list of version descriptors plus some metadata about the listing.
       "version": "1.6.0",
       "commit_hash": "982daa",
       "created_at": "2025-06-10T12:34:56Z",
+      "changelog_uri": "https://changelogs/1.6.0.md",
       "tests": {
         "status": "pass",
         "last_run": "2025-06-10T12:30:00Z",
@@ -386,6 +387,7 @@ Returns a list of version descriptors plus some metadata about the listing.
       "version": "1.5.3",
       "commit_hash": "eda3322",
       "created_at": "2025-05-20T09:15:00Z",
+      "changelog_uri": "https://changelogs/1.5.3.md",
       "tests": {
         "status": "pass",
         "last_run": "2025-05-20T09:10:00Z"
@@ -429,6 +431,11 @@ Returns a list of version descriptors plus some metadata about the listing.
             "type": "string",
             "format": "date-time",
             "description": "Creation or publish time of this version."
+          },
+          "changelog_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional URI to a human-readable changelog for this version."
           },
           "tests": {
             "type": "object",
