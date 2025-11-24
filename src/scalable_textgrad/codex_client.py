@@ -44,9 +44,18 @@ class CodexRunner:
         sandbox: str = "danger-full-access",
         extra_args: Optional[Iterable[str]] = None,
     ) -> CodexResult:
+        if self.settings.codex_simulate:
+            return CodexResult(
+                exit_code=0,
+                stdout="",
+                stderr="",
+                last_message="Simulation mode enabled; Codex execution skipped.",
+                events=[],
+            )
+
         executable = shutil.which(self.settings.codex_command)
         if not executable:
-            raise CodexError("Codex CLI not found in PATH; set STG_CODEX_COMMAND")
+            raise CodexError("Codex CLI not found in PATH; set STG_CODEX_COMMAND or enable simulation")
 
         cmd: List[str] = [executable, "exec", prompt]
         if sandbox:

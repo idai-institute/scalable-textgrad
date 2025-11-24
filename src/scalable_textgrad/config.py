@@ -43,6 +43,7 @@ class AgentSettings(BaseSettings):
     logs_dirname: str = "logs"
     codex_command: str = "codex"
     codex_profile: Optional[str] = None
+    codex_simulate: bool = False
     default_version: str = "0.0.0"
     tests_filename: str = "tests.py"
     runner_filename: str = "runner.py"
